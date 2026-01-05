@@ -61,9 +61,40 @@
             <% } %>
           </div>
 
-          <div
-            class="mt-4 pt-4 border-t border-black/5 flex justify-between items-center text-xs text-slate-500"
-          >
+<div
+  class="mt-4 pt-4 border-t border-black/5 flex justify-between items-center text-xs text-slate-500"
+>
+  <span class="font-bold text-slate-700 truncate max-w-[120px]">
+    From: <%= msg.sender %>
+  </span>
+
+  <div class="flex items-center gap-3">
+    <!-- LIKE -->
+    <form action="/like/<%= msg.id %>" method="POST">
+      <button
+        type="submit"
+        class="flex items-center gap-1 text-green-600 hover:scale-110 transition"
+        onclick="event.stopPropagation()"
+      >
+        👍 <span><%= msg.likes %></span>
+      </button>
+    </form>
+
+    <!-- DISLIKE -->
+    <form action="/dislike/<%= msg.id %>" method="POST">
+      <button
+        type="submit"
+        class="flex items-center gap-1 text-red-600 hover:scale-110 transition"
+        onclick="event.stopPropagation()"
+      >
+        👎 <span><%= msg.dislikes %></span>
+      </button>
+    </form>
+
+    <span><%= timeStr %></span>
+  </div>
+</div>
+
             <span class="font-bold text-slate-700 truncate max-w-[120px]"
               >From: <%= msg.sender %></span
             >
@@ -238,5 +269,23 @@
 
       backdrop.addEventListener("click", closeModal);
     </script>
+    <script>
+  async function likeMenfess(id, btn) {
+    const res = await fetch(`/like/${id}`, { method: "POST" });
+    if (res.ok) {
+      const span = btn.querySelector("span");
+      span.innerText = parseInt(span.innerText) + 1;
+    }
+  }
+
+  async function dislikeMenfess(id, btn) {
+    const res = await fetch(`/dislike/${id}`, { method: "POST" });
+    if (res.ok) {
+      const span = btn.querySelector("span");
+      span.innerText = parseInt(span.innerText) + 1;
+    }
+  }
+</script>
+
   </body>
 </html>

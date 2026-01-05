@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
 
-// Halaman Utama - List Menfess
+// =====================
+// HALAMAN UTAMA
+// =====================
 router.get("/", async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -15,19 +17,23 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Halaman Create Menfess
+// =====================
+// HALAMAN CREATE
+// =====================
 router.get("/create", (req, res) => {
   res.render("create");
 });
 
-// Handle Form Submission
+// =====================
+// KIRIM MENFESS
+// =====================
 router.post("/send", async (req, res) => {
   const { sender, content, color } = req.body;
   if (!sender || !content) return res.redirect("/create");
 
   try {
     await db.query(
-      "INSERT INTO menfess (sender, content, color) VALUES (?, ?, ?)",
+      "INSERT INTO menfess (sender, content, color, like_count, dislike_count) VALUES (?, ?, ?, 0, 0)",
       [sender, content, color]
     );
     res.redirect("/");
@@ -37,10 +43,35 @@ router.post("/send", async (req, res) => {
   }
 });
 
-// TODO: Tambahkan Route LIKE di sini
-// Clue: router.post('/like/:id', async (req, res) => { ... })
+// LIKE
+router.post("/like/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query(
+      "UPDATE menfess SET like_count = like_count + 1 WHERE id = ?",
+      [id]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
 
-// TODO: Tambahkan Route DISLIKE di sini
-// Clue: Mirip like, tapi yang ditambah kolom dislikes
+// DISLIKE
+router.post("/dislike/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query(
+      "UPDATE menfess SET dislike_count = dislike_count + 1 WHERE id = ?",
+      [id]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
+
 
 module.exports = router;
